@@ -15,4 +15,6 @@ commande pour excuter le serveur web de symfony :
     Dans son navigateur aller a l adresse : http://127.0.0.1:8000
 
 ----------------------infos project--------------------
+
 30/11/2021 : creation of the project symfony5.4
+30/11/2021 : creation entity Compagny, Product and migration - migrate
