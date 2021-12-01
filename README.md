@@ -33,3 +33,4 @@ dans le fichier "composer.json" un script (que j ai nommé « reset-data ») a �
 
 30/11/2021 : creation of the project symfony5.4
 30/11/2021 : creation entity Compagny, Product and migration - migrate
+1/12/2021 : Creation of fixtures ("CompagnyFixtures" and "ProductFixtures"), of the ApiController controller (for test api via postman) 
