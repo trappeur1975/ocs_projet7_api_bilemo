@@ -2,11 +2,14 @@
 
 namespace App\Controller;
 
+use App\Entity\Compagny;
 use App\Entity\Product;
 use App\Repository\ProductRepository;
 use App\Repository\CompagnyRepository;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -15,6 +18,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
  */
 class ApiController extends AbstractController
 {
+
     /**
      * @Route("/", name="apiIndex")
      */
@@ -57,9 +61,9 @@ class ApiController extends AbstractController
     }
 
     /**
-     * @Route("/product/{id}", name="product_show", methods={"GET"})
+     * @Route("/products/{id}", name="product_show", methods={"GET"})
      */
-    public function showAction(Product $product, SerializerInterface $serializer)
+    public function showProduct(Product $product, SerializerInterface $serializer)
     {
         $data = $serializer->serialize($product, 'json');
         // $data = $serializer->serialize($article, 'json', ['groups' => 'list']);
