@@ -29,6 +29,9 @@ class CompagnyFixtures extends Fixture
                 ->setPhone('02 62 34 20 1' . $nbrCompagny);
 
             $manager->persist($compagny);
+
+            // we save the reference of the compagny
+            $this->addReference('compagny' . $nbrCompagny, $compagny);
         }
 
         $manager->flush();

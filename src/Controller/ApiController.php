@@ -37,7 +37,7 @@ class ApiController extends AbstractController
     {
         $compagnies = $repo->findAll();
 
-        $data = $serializer->serialize($compagnies, 'json');
+        $data = $serializer->serialize($compagnies, 'json', ['groups' => 'group1']);
 
         $response = new Response($data);
         $response->headers->set('Content-Type', 'application/json');
