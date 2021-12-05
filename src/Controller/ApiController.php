@@ -8,6 +8,7 @@ use App\Entity\Customer;
 use App\Repository\ProductRepository;
 use App\Repository\CompagnyRepository;
 use App\Repository\CustomerRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -75,7 +76,7 @@ class ApiController extends AbstractController
         return $response;
     }
 
-    // --------------------------------------------------------------------------------
+    // ----------------mon teste 2----------------------------------------------------------------
 
     /**
      * @Route("/customers", name="customer_list", methods={"GET"})
@@ -103,5 +104,39 @@ class ApiController extends AbstractController
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;
+    }
+
+    /**
+     * @Route("/customers", name="customer_create", methods={"POST"})
+     */
+    public function createCustomer(Request $request, SerializerInterface $serializer, EntityManagerInterface $em)
+    {
+        $compagny = $this->getUser();
+        // dd($compagny);
+
+        $data = $request->getContent();
+        // dd($data);
+
+        $customer = $serializer->deserialize($data, Customer::class, 'json');
+        $customer->setCompagny($compagny);
+        // dd($customer);
+
+        $em->persist($customer);
+        $em->flush();
+
+        // -----------------------question menteor--------------------------------
+        // JE VOUDRAIS RECUPERER LE CUSTOMER CREER POUR LE RETOURNER EN JSON
+        // -----------------------question menteor--------------------------------
+        return new Response('ok customer is create', 201);
+    }
+
+    /**
+     * @Route("/customers/{id}", name="customer_delete", methods={"DELETE"})
+     */
+    public function deleteCustomer(Customer $customer, EntityManagerInterface $em)
+    {
+        $em->remove($customer);
+        $em->flush();
+        return new Response('ok customer is delete', 204);
     }
 }
