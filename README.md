@@ -44,3 +44,5 @@ dans le fichier "composer.json" un script (que j ai nommé « reset-data ») a �
 05/12/2021 : integration of the "Customer" entity and its fixture
 
 05/12/2021 : integration of group 1/2 and also in apiController the functions listCutomer / showCustomer 
+
+05/12/2021 : creation of functions createCustomer, deleteCustomer 
