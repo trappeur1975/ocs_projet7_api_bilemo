@@ -2,10 +2,12 @@
 
 namespace App\Controller;
 
-use App\Entity\Compagny;
 use App\Entity\Product;
+use App\Entity\Compagny;
+use App\Entity\Customer;
 use App\Repository\ProductRepository;
 use App\Repository\CompagnyRepository;
+use App\Repository\CustomerRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -66,7 +68,36 @@ class ApiController extends AbstractController
     public function showProduct(Product $product, SerializerInterface $serializer)
     {
         $data = $serializer->serialize($product, 'json');
-        // $data = $serializer->serialize($article, 'json', ['groups' => 'list']);
+
+        $response = new Response($data);
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
+    }
+
+    // --------------------------------------------------------------------------------
+
+    /**
+     * @Route("/customers", name="customer_list", methods={"GET"})
+     */
+    public function listCustomer(CustomerRepository $repo, SerializerInterface $serializer)
+    {
+        $customers = $repo->findAll();
+
+        $data = $serializer->serialize($customers, 'json', ['groups' => 'group2']);
+
+        $response = new Response($data);
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
+    }
+
+    /**
+     * @Route("/customers/{id}", name="customer_show", methods={"GET"})
+     */
+    public function showCustomer(Customer $customer, SerializerInterface $serializer)
+    {
+        $data = $serializer->serialize($customer, 'json', ['groups' => 'group2']);
 
         $response = new Response($data);
         $response->headers->set('Content-Type', 'application/json');

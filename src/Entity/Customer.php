@@ -15,37 +15,38 @@ class Customer
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups({"group1"})
+     * @Groups({"group1", "group2"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=80)
-     * @Groups({"group1"})
+     * @Groups({"group1", "group2"})
      */
     private $firstname;
 
     /**
      * @ORM\Column(type="string", length=80)
-     * @Groups({"group1"})
+     * @Groups({"group1", "group2"})
      */
     private $lastName;
 
     /**
      * @ORM\Column(type="string", length=80, nullable=true)
-     * @Groups({"group1"})
+     * @Groups({"group1", "group2"})
      */
     private $phone;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"group1"})
+     * @Groups({"group1", "group2"})
      */
     private $adress;
 
     /**
      * @ORM\ManyToOne(targetEntity=Compagny::class, inversedBy="customers")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"group2"})
      */
     private $compagny;
 

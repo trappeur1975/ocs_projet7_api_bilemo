@@ -44,7 +44,7 @@ class Compagny implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"group1"})
+     * @Groups({"group1", "group2"})
      */
     private $name;
 
