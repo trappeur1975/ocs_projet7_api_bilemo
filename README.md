@@ -45,4 +45,6 @@ dans le fichier "composer.json" un script (que j ai nommé « reset-data ») a �
 
 05/12/2021 : integration of group 1/2 and also in apiController the functions listCutomer / showCustomer 
 
-05/12/2021 : creation of functions createCustomer, deleteCustomer 
+05/12/2021 : creation of functions createCustomer, deleteCustomer
+
+07/12/2021 : Modify function deleteCustomer, showCustomer (verification that the customer belongs to the company to access the resource), listCustomer (to display only the list of customers of the company) 

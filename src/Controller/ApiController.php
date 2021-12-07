@@ -83,7 +83,8 @@ class ApiController extends AbstractController
      */
     public function listCustomer(CustomerRepository $repo, SerializerInterface $serializer)
     {
-        $customers = $repo->findAll();
+        // dd($this->getUser());
+        $customers = $this->getUser()->getCustomers();
 
         $data = $serializer->serialize($customers, 'json', ['groups' => 'group2']);
 
@@ -98,12 +99,17 @@ class ApiController extends AbstractController
      */
     public function showCustomer(Customer $customer, SerializerInterface $serializer)
     {
-        $data = $serializer->serialize($customer, 'json', ['groups' => 'group2']);
+        $customers = $this->getUser()->getCustomers();
+        if ($customers->contains($customer)) {
+            $data = $serializer->serialize($customer, 'json', ['groups' => 'group2']);
 
-        $response = new Response($data);
-        $response->headers->set('Content-Type', 'application/json');
+            $response = new Response($data);
+            $response->headers->set('Content-Type', 'application/json');
 
-        return $response;
+            return $response;
+        } else {
+            return new Response('this customer does not belong to you', 403);
+        }
     }
 
     /**
@@ -112,22 +118,34 @@ class ApiController extends AbstractController
     public function createCustomer(Request $request, SerializerInterface $serializer, EntityManagerInterface $em)
     {
         $compagny = $this->getUser();
-        // dd($compagny);
 
         $data = $request->getContent();
-        // dd($data);
 
         $customer = $serializer->deserialize($data, Customer::class, 'json');
-        $customer->setCompagny($compagny);
+
         // dd($customer);
+
+        // $customers = $this->getUser()->getCustomers();
+        // if ($customers->contains($customer)) {
+
+        $customer->setCompagny($compagny);
 
         $em->persist($customer);
         $em->flush();
 
-        // -----------------------question menteor--------------------------------
-        // JE VOUDRAIS RECUPERER LE CUSTOMER CREER POUR LE RETOURNER EN JSON
-        // -----------------------question menteor--------------------------------
-        return new Response('ok customer is create', 201);
+        // we return the last customer create
+        $lastCustomerCreate = $this->getUser()->getCustomers()->last();
+
+        $data = $serializer->serialize($lastCustomerCreate, 'json', ['groups' => 'group2']);
+
+        $response = new Response($data, 201);
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
+        // return new Response('ok customer is create', 201);
+        // } else {
+        //     return new Response('customer not created because it already exists ', 403);
+        // }
     }
 
     /**
@@ -135,8 +153,13 @@ class ApiController extends AbstractController
      */
     public function deleteCustomer(Customer $customer, EntityManagerInterface $em)
     {
-        $em->remove($customer);
-        $em->flush();
-        return new Response('ok customer is delete', 204);
+        $customers = $this->getUser()->getCustomers();
+        if ($customers->contains($customer)) {
+            $em->remove($customer);
+            $em->flush();
+            return new Response('ok customer is delete', 204);
+        } else {
+            return new Response('this customer does not belong to you', 403);
+        }
     }
 }
