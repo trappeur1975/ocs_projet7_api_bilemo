@@ -37,8 +37,6 @@ class ApiController extends AbstractController
         return $response;
     }
 
-    // ------------changement---------------
-
     /**
      * @Route("/products/{page}", name="product_list", methods={"GET"})
      */
@@ -75,8 +73,6 @@ class ApiController extends AbstractController
 
         return $response;
     }
-
-    // ------------changement---------------
 
     /**
      * @Route("/customers", name="customer_list", methods={"GET"})
