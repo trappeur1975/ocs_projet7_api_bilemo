@@ -23,17 +23,6 @@ class ApiController extends AbstractController
 {
 
     /**
-     * @Route("/", name="apiIndex")
-     */
-    public function index(): Response
-    {
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/ApiController.php',
-        ]);
-    }
-
-    /**
      * @Route("/compagnies", name="compagny_list", methods={"GET"})
      */
     public function listCompagny(CompagnyRepository $repo, SerializerInterface $serializer)
@@ -76,14 +65,11 @@ class ApiController extends AbstractController
         return $response;
     }
 
-    // ----------------mon teste 2----------------------------------------------------------------
-
     /**
      * @Route("/customers", name="customer_list", methods={"GET"})
      */
-    public function listCustomer(CustomerRepository $repo, SerializerInterface $serializer)
+    public function listCustomer(SerializerInterface $serializer)
     {
-        // dd($this->getUser());
         $customers = $this->getUser()->getCustomers();
 
         $data = $serializer->serialize($customers, 'json', ['groups' => 'group2']);
@@ -115,37 +101,44 @@ class ApiController extends AbstractController
     /**
      * @Route("/customers", name="customer_create", methods={"POST"})
      */
-    public function createCustomer(Request $request, SerializerInterface $serializer, EntityManagerInterface $em)
+    public function createCustomer(CustomerRepository $repo, Request $request, SerializerInterface $serializer, EntityManagerInterface $em)
     {
         $compagny = $this->getUser();
 
         $data = $request->getContent();
-
         $customer = $serializer->deserialize($data, Customer::class, 'json');
+        $emailCustomer = $customer->getEmail();
 
-        // dd($customer);
+        $customers = $this->getUser()->getCustomers();
 
-        // $customers = $this->getUser()->getCustomers();
-        // if ($customers->contains($customer)) {
+        //  we check if the customer already exists (via his email) in the list of customers of the company. if email is already present this is the customer has already been created 
+        $exists = $customers->exists(function ($key, $value) use ($emailCustomer) {
+            $result = ($value->getEmail() === $emailCustomer);
+            return $result;
+        });
 
-        $customer->setCompagny($compagny);
+        if (!$exists) {
+            $customer->setCompagny($compagny);
 
-        $em->persist($customer);
-        $em->flush();
+            $em->persist($customer);
+            $em->flush();
 
-        // we return the last customer create
-        $lastCustomerCreate = $this->getUser()->getCustomers()->last();
+            // we return the last customer create
+            $lastCustomerCreate = ($repo->findBy([], ['id' => 'DESC'], 1, 0))[0];
+            // $lastCustomerCreate = $this->getUser()->getCustomers()->last();
+            // dd($lastCustomerCreate);
+            // dd($this->getUser()->getCustomers());
 
-        $data = $serializer->serialize($lastCustomerCreate, 'json', ['groups' => 'group2']);
+            $data = $serializer->serialize($lastCustomerCreate, 'json', ['groups' => 'group2']);
 
-        $response = new Response($data, 201);
-        $response->headers->set('Content-Type', 'application/json');
+            $response = new Response($data, 201);
+            $response->headers->set('Content-Type', 'application/json');
 
-        return $response;
-        // return new Response('ok customer is create', 201);
-        // } else {
-        //     return new Response('customer not created because it already exists ', 403);
-        // }
+            return $response;
+            // return new Response('ok customer is create', 201);
+        } else {
+            return new Response('customer not created because it already exists ', 403);
+        }
     }
 
     /**
@@ -154,6 +147,7 @@ class ApiController extends AbstractController
     public function deleteCustomer(Customer $customer, EntityManagerInterface $em)
     {
         $customers = $this->getUser()->getCustomers();
+        // dd($customers->contains($customer));
         if ($customers->contains($customer)) {
             $em->remove($customer);
             $em->flush();

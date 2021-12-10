@@ -47,4 +47,6 @@ dans le fichier "composer.json" un script (que j ai nommé « reset-data ») a �
 
 05/12/2021 : creation of functions createCustomer, deleteCustomer
 
-07/12/2021 : Modify function deleteCustomer, showCustomer (verification that the customer belongs to the company to access the resource), listCustomer (to display only the list of customers of the company) 
+07/12/2021 : Modify function deleteCustomer, showCustomer (verification that the customer belongs to the company to access the resource), listCustomer (to display only the list of customers of the company)
+
+10/12/2021 : Customer entity modification to add the email property + modification of the fixture accordingly. Modification of the "createCustomer" function not to create the same customer twice

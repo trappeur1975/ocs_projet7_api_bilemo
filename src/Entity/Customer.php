@@ -32,6 +32,12 @@ class Customer
     private $lastName;
 
     /**
+     * @ORM\Column(type="string", length=180)
+     * @Groups({"group2"})
+     */
+    private $email;
+
+    /**
      * @ORM\Column(type="string", length=80, nullable=true)
      * @Groups({"group1", "group2"})
      */
@@ -49,6 +55,8 @@ class Customer
      * @Groups({"group2"})
      */
     private $compagny;
+
+
 
     public function getId(): ?int
     {
@@ -75,6 +83,18 @@ class Customer
     public function setLastName(string $lastName): self
     {
         $this->lastName = $lastName;
+
+        return $this;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): self
+    {
+        $this->email = $email;
 
         return $this;
     }
