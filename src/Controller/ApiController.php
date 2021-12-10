@@ -38,11 +38,20 @@ class ApiController extends AbstractController
     }
 
     /**
-     * @Route("/products", name="product_list", methods={"GET"})
+     * @Route("/products/{page}", name="product_list", methods={"GET"})
      */
-    public function listProduct(ProductRepository $repo, SerializerInterface $serializer)
+    public function listProduct(ProductRepository $repo, SerializerInterface $serializer, int $page = 1)
     {
-        $products = $repo->findAll();
+        $numerProductsDisplay = 5;
+        $offset = ($page - 1) * $numerProductsDisplay;
+
+        // $products = $repo->findAll();
+        $products = $repo->findBy(
+            [],
+            ['id' => 'ASC'],
+            $numerProductsDisplay, //la limite
+            $offset
+        );
 
         $data = $serializer->serialize($products, 'json');
 
@@ -53,7 +62,7 @@ class ApiController extends AbstractController
     }
 
     /**
-     * @Route("/products/{id}", name="product_show", methods={"GET"})
+     * @Route("/product/{id}", name="product_show", methods={"GET"})
      */
     public function showProduct(Product $product, SerializerInterface $serializer)
     {
