@@ -53,12 +53,16 @@ class ApiController extends AbstractController
             $offset
         );
 
-        $data = $serializer->serialize($products, 'json');
+        if (!empty($products)) {
+            $data = $serializer->serialize($products, 'json');
 
-        $response = new Response($data);
-        $response->headers->set('Content-Type', 'application/json');
+            $response = new Response($data);
+            $response->headers->set('Content-Type', 'application/json');
 
-        return $response;
+            return $response;
+        } else {
+            return new Response('the requested resource does not exist ', 404);
+        }
     }
 
     /**
@@ -75,22 +79,38 @@ class ApiController extends AbstractController
     }
 
     /**
-     * @Route("/customers", name="customer_list", methods={"GET"})
+     * @Route("/customers/{page}", name="customer_list", methods={"GET"})
      */
-    public function listCustomer(SerializerInterface $serializer)
+    public function listCustomer(SerializerInterface $serializer, int $page = 1)
     {
+        $numerCustomersDisplay = 5;
+        $start = ($page - 1) * $numerCustomersDisplay;
+        $end = $page * $numerCustomersDisplay;
+
         $customers = $this->getUser()->getCustomers();
 
-        $data = $serializer->serialize($customers, 'json', ['groups' => 'group2']);
+        $customersPage = [];
+        for ($customer = $start; $customer < $end; $customer++) {
+            if ($customers[$customer] !== null) {
+                $customersPage[] = $customers[$customer];
+            }
+        }
 
-        $response = new Response($data);
-        $response->headers->set('Content-Type', 'application/json');
+        if (!empty($customersPage)) {
+            $data = $serializer->serialize($customersPage, 'json', ['groups' => 'group2']);
+            // $data = $serializer->serialize($customers, 'json', ['groups' => 'group2']);
 
-        return $response;
+            $response = new Response($data);
+            $response->headers->set('Content-Type', 'application/json');
+
+            return $response;
+        } else {
+            return new Response('the requested resource does not exist ', 404);
+        }
     }
 
     /**
-     * @Route("/customers/{id}", name="customer_show", methods={"GET"})
+     * @Route("/customer/{id}", name="customer_show", methods={"GET"})
      */
     public function showCustomer(Customer $customer, SerializerInterface $serializer)
     {

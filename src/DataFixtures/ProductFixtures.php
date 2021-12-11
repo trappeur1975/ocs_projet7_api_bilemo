@@ -15,7 +15,7 @@ class ProductFixtures extends Fixture
         $tabBrand = ['samsung', 'redmi', 'xiaomi', 'iphone', 'huawei', 'honor', 'realme', 'oppo', 'wiko', 'sony'];
 
         // we create the prduct 
-        for ($nbrProduct = 1; $nbrProduct <= 20; $nbrProduct++) {
+        for ($nbrProduct = 1; $nbrProduct <= 200; $nbrProduct++) {
 
             $product = new Product();
             $product->setModel('model' . $nbrProduct)
