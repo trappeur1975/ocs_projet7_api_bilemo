@@ -9,12 +9,14 @@ use App\Repository\ProductRepository;
 use App\Repository\CompagnyRepository;
 use App\Repository\CustomerRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Contracts\Cache\ItemInterface;
 
 /**
  * @Route("/api", name="api")
@@ -25,9 +27,13 @@ class ApiController extends AbstractController
     /**
      * @Route("/compagnies", name="compagny_list", methods={"GET"})
      */
-    public function listCompagny(CompagnyRepository $repo, SerializerInterface $serializer)
+    public function listCompagny(CompagnyRepository $repo, SerializerInterface $serializer, CacheInterface $cache)
     {
-        $compagnies = $repo->findAll();
+        // $compagnies = $repo->findAll();
+        $compagnies = $cache->get('listCompagny', function (ItemInterface $item) use ($repo) {
+            $item->expiresAfter(3600);
+            return $repo->findAll();
+        });
 
         $data = $serializer->serialize($compagnies, 'json', ['groups' => 'group1']);
 
@@ -41,17 +47,27 @@ class ApiController extends AbstractController
      * @Route("/products/{page}", name="product_list", methods={"GET"})
      */
     public function listProduct(ProductRepository $repo, SerializerInterface $serializer, int $page = 1)
+    // public function listProduct(ProductRepository $repo, SerializerInterface $serializer, int $page = 1, CacheInterface $cache)
     {
         $numerProductsDisplay = 5;
         $offset = ($page - 1) * $numerProductsDisplay;
 
-        // $products = $repo->findAll();
         $products = $repo->findBy(
             [],
             ['id' => 'ASC'],
             $numerProductsDisplay, //la limite
             $offset
         );
+
+        // $products = $cache->get('listProduct', function (ItemInterface $item) use ($repo, $numerProductsDisplay, $offset) {
+        //     $item->expiresAfter(3600);
+        //     return  $repo->findBy(
+        //         [],
+        //         ['id' => 'ASC'],
+        //         $numerProductsDisplay, //la limite
+        //         $offset
+        //     );
+        // });
 
         if (!empty($products)) {
             $data = $serializer->serialize($products, 'json');
@@ -69,7 +85,13 @@ class ApiController extends AbstractController
      * @Route("/product/{id}", name="product_show", methods={"GET"})
      */
     public function showProduct(Product $product, SerializerInterface $serializer)
+    // public function showProduct(Product $product, SerializerInterface $serializer, CacheInterface $cache)
     {
+        // $product = $cache->get('product', function (ItemInterface $item) use ($product) {
+        //     $item->expiresAfter(3600);
+        //     return $product;
+        // });
+
         $data = $serializer->serialize($product, 'json');
 
         $response = new Response($data);
@@ -82,12 +104,18 @@ class ApiController extends AbstractController
      * @Route("/customers/{page}", name="customer_list", methods={"GET"})
      */
     public function listCustomer(SerializerInterface $serializer, int $page = 1)
+    // public function listCustomer(SerializerInterface $serializer, int $page = 1, CacheInterface $cache)
     {
         $numerCustomersDisplay = 5;
         $start = ($page - 1) * $numerCustomersDisplay;
         $end = $page * $numerCustomersDisplay;
 
         $customers = $this->getUser()->getCustomers();
+        // -----------------PROBLEME VOIR FREDERIC------------------------------
+        // $customers = $cache->get('listCustomer', function (ItemInterface $item) {
+        //     $item->expiresAfter(3600);
+        //     return $this->getUser()->getCustomers();
+        // });
 
         $customersPage = [];
         for ($customer = $start; $customer < $end; $customer++) {
@@ -113,8 +141,15 @@ class ApiController extends AbstractController
      * @Route("/customer/{id}", name="customer_show", methods={"GET"})
      */
     public function showCustomer(Customer $customer, SerializerInterface $serializer)
+    // public function showCustomer(Customer $customer, SerializerInterface $serializer, CacheInterface $cache)
     {
         $customers = $this->getUser()->getCustomers();
+        // -----------------PROBLEME VOIR FREDERIC------------------------------
+        // $customers = $cache->get('customer', function (ItemInterface $item) {
+        //     $item->expiresAfter(3600);
+        //     return $this->getUser()->getCustomers();
+        // });
+
         if ($customers->contains($customer)) {
             $data = $serializer->serialize($customer, 'json', ['groups' => 'group2']);
 
@@ -154,9 +189,6 @@ class ApiController extends AbstractController
 
             // we return the last customer create
             $lastCustomerCreate = ($repo->findBy([], ['id' => 'DESC'], 1, 0))[0];
-            // $lastCustomerCreate = $this->getUser()->getCustomers()->last();
-            // dd($lastCustomerCreate);
-            // dd($this->getUser()->getCustomers());
 
             $data = $serializer->serialize($lastCustomerCreate, 'json', ['groups' => 'group2']);
 
