@@ -51,4 +51,6 @@ dans le fichier "composer.json" un script (que j ai nommé « reset-data ») a �
 
 10/12/2021 : Customer entity modification to add the email property + modification of the fixture accordingly. Modification of the "createCustomer" function not to create the same customer twice
 
-10/12/2021 : Modification of listProduct to manage pagination and also modify the route of showProduct 
+10/12/2021 : Modification of listProduct to manage pagination and also modify the route of showProduct
+
+11/12/2021 : Modification of listCustomer to manage pagination and also modify the route of showCustomer 

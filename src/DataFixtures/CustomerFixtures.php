@@ -12,7 +12,7 @@ class CustomerFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         // we create the compagny 
-        for ($nbrCustommer = 1; $nbrCustommer <= 20; $nbrCustommer++) {
+        for ($nbrCustommer = 1; $nbrCustommer <= 200; $nbrCustommer++) {
 
             // we retrieve the reference of the compagny
             $compagny = $this->getReference('compagny' . rand(1, 9));
