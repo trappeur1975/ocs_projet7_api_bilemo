@@ -56,3 +56,5 @@ dans le fichier "composer.json" un script (que j ai nommé « reset-data ») a �
 11/12/2021 : Modification of listCustomer to manage pagination and also modify the route of showCustomer
 
 11/12/2021 : cache implementation
+
+17/12/2021 : update of the cache for the "listProduct" and "listCustommer" functions
