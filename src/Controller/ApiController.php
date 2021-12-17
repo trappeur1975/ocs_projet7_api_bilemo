@@ -29,7 +29,7 @@ class ApiController extends AbstractController
      */
     public function listCompagny(CompagnyRepository $repo, SerializerInterface $serializer, CacheInterface $cache)
     {
-        // $compagnies = $repo->findAll();
+        // caching 
         $compagnies = $cache->get('listCompagny', function (ItemInterface $item) use ($repo) {
             $item->expiresAfter(3600);
             return $repo->findAll();
@@ -46,28 +46,21 @@ class ApiController extends AbstractController
     /**
      * @Route("/products/{page}", name="product_list", methods={"GET"})
      */
-    public function listProduct(ProductRepository $repo, SerializerInterface $serializer, int $page = 1)
-    // public function listProduct(ProductRepository $repo, SerializerInterface $serializer, int $page = 1, CacheInterface $cache)
+    public function listProduct(ProductRepository $repo, SerializerInterface $serializer, int $page = 1, CacheInterface $cache)
     {
         $numerProductsDisplay = 5;
         $offset = ($page - 1) * $numerProductsDisplay;
 
-        $products = $repo->findBy(
-            [],
-            ['id' => 'ASC'],
-            $numerProductsDisplay, //la limite
-            $offset
-        );
-
-        // $products = $cache->get('listProduct', function (ItemInterface $item) use ($repo, $numerProductsDisplay, $offset) {
-        //     $item->expiresAfter(3600);
-        //     return  $repo->findBy(
-        //         [],
-        //         ['id' => 'ASC'],
-        //         $numerProductsDisplay, //la limite
-        //         $offset
-        //     );
-        // });
+        // caching 
+        $products = $cache->get('listProduct' . $page, function (ItemInterface $item) use ($repo, $numerProductsDisplay, $offset) {
+            $item->expiresAfter(3600);
+            return  $repo->findBy(
+                [],
+                ['id' => 'ASC'],
+                $numerProductsDisplay, //la limite
+                $offset
+            );
+        });
 
         if (!empty($products)) {
             $data = $serializer->serialize($products, 'json');
@@ -85,13 +78,7 @@ class ApiController extends AbstractController
      * @Route("/product/{id}", name="product_show", methods={"GET"})
      */
     public function showProduct(Product $product, SerializerInterface $serializer)
-    // public function showProduct(Product $product, SerializerInterface $serializer, CacheInterface $cache)
     {
-        // $product = $cache->get('product', function (ItemInterface $item) use ($product) {
-        //     $item->expiresAfter(3600);
-        //     return $product;
-        // });
-
         $data = $serializer->serialize($product, 'json');
 
         $response = new Response($data);
@@ -103,30 +90,30 @@ class ApiController extends AbstractController
     /**
      * @Route("/customers/{page}", name="customer_list", methods={"GET"})
      */
-    public function listCustomer(SerializerInterface $serializer, int $page = 1)
-    // public function listCustomer(SerializerInterface $serializer, int $page = 1, CacheInterface $cache)
+    public function listCustomer(SerializerInterface $serializer, int $page = 1, CacheInterface $cache)
     {
         $numerCustomersDisplay = 5;
         $start = ($page - 1) * $numerCustomersDisplay;
         $end = $page * $numerCustomersDisplay;
 
         $customers = $this->getUser()->getCustomers();
-        // -----------------PROBLEME VOIR FREDERIC------------------------------
-        // $customers = $cache->get('listCustomer', function (ItemInterface $item) {
-        //     $item->expiresAfter(3600);
-        //     return $this->getUser()->getCustomers();
-        // });
 
-        $customersPage = [];
-        for ($customer = $start; $customer < $end; $customer++) {
-            if ($customers[$customer] !== null) {
-                $customersPage[] = $customers[$customer];
+        // caching 
+        $customersPage = $cache->get('listCustomer' . $page, function (ItemInterface $item) use ($customers, $start, $end) {
+            $item->expiresAfter(3600);
+
+            $customersTab = [];
+            for ($customer = $start; $customer < $end; $customer++) {
+                if ($customers[$customer] !== null) {
+                    $customersTab[] = $customers[$customer];
+                }
             }
-        }
+
+            return $customersTab;
+        });
 
         if (!empty($customersPage)) {
             $data = $serializer->serialize($customersPage, 'json', ['groups' => 'group2']);
-            // $data = $serializer->serialize($customers, 'json', ['groups' => 'group2']);
 
             $response = new Response($data);
             $response->headers->set('Content-Type', 'application/json');
@@ -141,14 +128,8 @@ class ApiController extends AbstractController
      * @Route("/customer/{id}", name="customer_show", methods={"GET"})
      */
     public function showCustomer(Customer $customer, SerializerInterface $serializer)
-    // public function showCustomer(Customer $customer, SerializerInterface $serializer, CacheInterface $cache)
     {
         $customers = $this->getUser()->getCustomers();
-        // -----------------PROBLEME VOIR FREDERIC------------------------------
-        // $customers = $cache->get('customer', function (ItemInterface $item) {
-        //     $item->expiresAfter(3600);
-        //     return $this->getUser()->getCustomers();
-        // });
 
         if ($customers->contains($customer)) {
             $data = $serializer->serialize($customer, 'json', ['groups' => 'group2']);
@@ -196,7 +177,6 @@ class ApiController extends AbstractController
             $response->headers->set('Content-Type', 'application/json');
 
             return $response;
-            // return new Response('ok customer is create', 201);
         } else {
             return new Response('customer not created because it already exists ', 403);
         }
@@ -208,7 +188,6 @@ class ApiController extends AbstractController
     public function deleteCustomer(Customer $customer, EntityManagerInterface $em)
     {
         $customers = $this->getUser()->getCustomers();
-        // dd($customers->contains($customer));
         if ($customers->contains($customer)) {
             $em->remove($customer);
             $em->flush();
