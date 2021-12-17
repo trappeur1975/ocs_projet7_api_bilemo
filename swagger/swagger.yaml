@@ -1,0 +1,12 @@
+openapi: 3.0.0
+paths:
+  /compagnies:
+    get:
+      operationId: 91eb84e336737010c93b7c277594a8ff
+      responses:
+        '200':
+          description: 'list des compagnies'
+          content:
+            application/json:
+              schema:
+                type: string

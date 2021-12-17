@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Contracts\Cache\ItemInterface;
+use OpenApi\Annotations as OA;
 
 /**
  * @Route("/api", name="api")
@@ -26,6 +27,16 @@ class ApiController extends AbstractController
 
     /**
      * @Route("/compagnies", name="compagny_list", methods={"GET"})
+     * 
+     * /**
+     * @OA\Get(
+     *      path="/compagnies",
+     *      @OA\Response(
+     *          response="200",
+     *          description="list des compagnies",
+     *      @OA\JsonContent(type="string")
+     *      )
+     * )
      */
     public function listCompagny(CompagnyRepository $repo, SerializerInterface $serializer, CacheInterface $cache)
     {
@@ -84,13 +95,13 @@ class ApiController extends AbstractController
     /**
      * @Route("/product/{id}", name="product_show", methods={"GET"})
      */
-    public function showProduct(Product $product, SerializerInterface $serializer)
-    // public function showProduct(Product $product, SerializerInterface $serializer, CacheInterface $cache)
+    // public function showProduct(Product $product, SerializerInterface $serializer)
+    public function showProduct(Product $product, SerializerInterface $serializer, CacheInterface $cache)
     {
-        // $product = $cache->get('product', function (ItemInterface $item) use ($product) {
-        //     $item->expiresAfter(3600);
-        //     return $product;
-        // });
+        $product = $cache->get('product', function (ItemInterface $item) use ($product) {
+            $item->expiresAfter(3600);
+            return $product;
+        });
 
         $data = $serializer->serialize($product, 'json');
 

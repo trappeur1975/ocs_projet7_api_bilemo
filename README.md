@@ -56,3 +56,5 @@ dans le fichier "composer.json" un script (que j ai nommé « reset-data ») a �
 11/12/2021 : Modification of listCustomer to manage pagination and also modify the route of showCustomer
 
 11/12/2021 : cache implementation
+
+11/12/2021 : integration of the swagger library for the generation of the documentation but for the moment does not work because the generated "swagger.yaml" does not include the following information in the "swagger php" file
